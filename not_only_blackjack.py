@@ -5,9 +5,15 @@ complete_deck = single_deck * 6
 
 def shuffleDeck(cards):
     "Function that shuffle the deck passed by argument"
-    deck = cards
-    length = len(deck)
+    i = 0
+    deck = []
     shuffled_deck = []
+    
+    while i < len(cards):
+        deck.append(cards[i])
+        i += 1
+        
+    length = len(deck)
 
     for i in range( length ):
         deck_length = len(deck)
@@ -17,4 +23,9 @@ def shuffleDeck(cards):
     
     return shuffled_deck;
 
+# def hand():
+#     "Function that deal one hand"
+
+#print( complete_deck )
 print(  shuffleDeck(complete_deck) )
+print( complete_deck )
