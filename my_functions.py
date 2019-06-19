@@ -7,39 +7,51 @@ def menu():
     single_deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A']
 
     print('Shuffling...')
+    print('Dealing...')
     new_deck = shuffleDeck(single_deck)
     value_new_deck = deckValue(new_deck)
 
-    print('Shuffled deck:', new_deck)
-    #print('Value deck:', value_new_deck)
+    player_cards_value, dealer_cards_value = 0, 0
+    player_cards = []
+    dealer_cards = []
 
-    first_hand = firstHand(new_deck, value_new_deck)
-    player = first_hand[0]
-    dealer = first_hand[1]
-    
-    player_cards_value = player[0]
-    player_cards = [ player[1][0], player[1][1] ]
+    player_cards_value, dealer_cards_value = firstHand(new_deck, value_new_deck, player_cards_value, player_cards, dealer_cards_value, dealer_cards)
+    setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
 
-    dealer_card_value = dealer[0]
-    dealer_card = dealer[1]
-    
-    print('\nYour hand:', player_cards_value, '\t\tDealer hand:', dealer_card_value)
-    print('Your cards:', player_cards[0], player_cards[1], '\tDealer card:', dealer_card)
-    print('\nShuffled deck after first hand:', new_deck)
-    #print('Value deck after first hand:', value_new_deck)
+    choice = True
 
-    hit = hitOneCard(new_deck, value_new_deck, 0)
+    while choice != 0:
+        print('[1] Give me a card\n[2] Stay\n[0] Go smoking a cigarette') 
+        choice = input()
 
-    player_cards_value += hit[0]
-    player_cards.append(hit[1])
-
-    print('\nYour hand:', player_cards_value, '\t\tDealer hand:', dealer_card_value)
-    print('Your cards:', player_cards[0], player_cards[1], player_cards[2], '\tDealer card:', dealer_card)
-    print('\nShuffled deck after hit:', new_deck)
-    #print('Value deck after hit:', value_new_deck)
-    
-    #print('[1]Give me a card\n[2]Stay') 
-    #choice = input()
+        if choice == '1':
+            print('Dealing...')
+            card = hitOneCard(new_deck, value_new_deck, 0)
+            player_cards_value += card[0]
+            player_cards.append(card[1])
+            setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
+            if player_cards_value > 21:
+                print('Too many')
+        elif choice == '2':
+            print('Dealing...')
+            while dealer_cards_value < 17:
+                card = hitOneCard(new_deck, value_new_deck, 0)
+                dealer_cards_value += card[0]
+                dealer_cards.append(card[1])
+            setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
+            if (dealer_cards_value > player_cards_value) and (dealer_cards_value < 21):
+                print('Dealer wins')
+            elif dealer_cards_value == player_cards_value:
+                print('Stand')
+            elif dealer_cards_value < player_cards_value:
+                print('You win')
+            else:
+                print('The dealer got busted')
+        elif choice == '0':
+            print('See ya')
+            choice = False
+        else:
+            print('Can you choose somenthing right? Fucking dumb')
 
     
 
@@ -91,26 +103,22 @@ def deckValue(cards):
 
     return deck;
 
-def firstHand(deck, deck_value):
+def firstHand(deck, deck_value, player_cards_value, player_cards, dealer_cards_value, dealer_cards):
     "Function that deal one hand"
-    CONST_PLAYER = 2
-    CONST_DEALER = 1
-    sub = 3
-    i = 0
-    
-    player_cards_value = deck_value[i] + deck_value[CONST_PLAYER]
-    dealer_card_value = deck_value[CONST_DEALER]
 
-    player_cards = [deck[i], deck[CONST_PLAYER]]
-    dealer_card = deck[CONST_DEALER]
+    card = hitOneCard(deck, deck_value, 0)
+    player_cards_value += card[0]
+    player_cards.append(card[1])
 
-    player = [player_cards_value, player_cards]
-    dealer = [dealer_card_value, dealer_card]
-    hand = [player, dealer]
+    card = hitOneCard(deck, deck_value, 0)
+    dealer_cards_value += card[0]
+    dealer_cards.append(card[1])
 
-    subCards(deck, deck_value, sub)
+    card = hitOneCard(deck, deck_value, 0)
+    player_cards_value += card[0]
+    player_cards.append(card[1])
 
-    return hand;   
+    return player_cards_value, dealer_cards_value;   
 
 def hitOneCard(deck, deck_value, index):
     "Function for the hit of the player"
@@ -118,8 +126,23 @@ def hitOneCard(deck, deck_value, index):
     
     card_value = deck_value[index]
     card = deck[index]
-    hit = [card_value, card]
+    card_info = [card_value, card]
 
     subCards(deck, deck_value, sub)
 
-    return hit;
+    return card_info;
+
+def setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards):
+
+    p_cards , d_cards = '', ''
+
+    for card in player_cards:
+        p_cards += str(card)
+        p_cards += ' '
+
+    for card in dealer_cards:
+        d_cards += str(card)
+        d_cards += ' '
+
+    print('\nYour hand:', player_cards_value, '\t\tDealer hand:', dealer_cards_value)
+    print('Your cards:', p_cards, '\tDealer card:', d_cards, '\n')
