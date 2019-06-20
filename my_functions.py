@@ -1,71 +1,117 @@
 import random
 
+ace = False
+
 def menu():
     single_deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'] * 4
     complete_deck = single_deck * 6
 
-    #single_deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A']
+    # single_deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A']
+    # single_deck = ['A', 'A', 5, 'A', 'A', 10, 3, 'A', 10, 'J', 'Q', 'K', 'A']
 
     print('Shuffling...')
-    print('Dealing...')
     new_deck = shuffleDeck(complete_deck)
+    # new_deck = single_deck
     value_new_deck = deckValue(new_deck)
 
     player_cards_value, dealer_cards_value = 0, 0
     player_cards = []
     dealer_cards = []
 
-    while True:
-        #print('Deck:', new_deck)
-        player_cards_value, dealer_cards_value = firstHand(new_deck, value_new_deck, player_cards_value, player_cards, dealer_cards_value, dealer_cards)
-        setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
-        player_blackjack = checkBlackjack(player_cards_value)
+    money = 1000
+    bet = 0
 
-        if player_blackjack:
-            print('Blackjack!')
+    bet_choice = True
 
-        choice = True
+    while bet_choice:
+        #print('[1] 10$\n[2] 20$\n[3] 50$\n[4] 100$\n[5] All\n[0] Exit')
+        print('Your money:', money, '$')
+        print('[1] 10$\n[2] 20$\n[3] All\n[0] Exit')
+        bet_choice = input()
 
-        while choice != 0:
-            print('[1] Give me a card\n[2] Stay\n[0] Go smoking a cigarette') 
-            choice = input()
+        if bet_choice != '0':
+            if bet_choice == '1':
+                bet = 10
+            elif bet_choice == '2':
+                bet = 20
+            elif bet_choice == '3':
+                bet = money
+            print('Dealing...')
+            # print('Deck:', new_deck)
+            player_cards_value, dealer_cards_value = firstHand(new_deck, value_new_deck, player_cards_value, player_cards, dealer_cards_value, dealer_cards)
+            setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
+            player_blackjack = checkBlackjack(player_cards_value)
+            dealer_blackjack = False
 
-            if choice == '1':
-                if (not player_blackjack) or (not (player_cards_value == 21)):
-                    print('Dealing...')
-                    card = hitOneCard(new_deck, value_new_deck, 0)
-                    player_cards_value += checkAceValue(player_cards_value, card[0])
-                    player_cards.append(card[1])
-                    setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
-                    if player_cards_value > 21:
-                        print('Too many')
-                        player_cards_value, dealer_cards_value = clearHand(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
-                        choice = False
-                else:
-                    print('You have already 21')
-            elif choice == '2':
-                print('Dealing...')
-                while dealer_cards_value < 17:
-                    card = hitOneCard(new_deck, value_new_deck, 0)
-                    dealer_cards_value += checkAceValue(dealer_cards_value, card[0])
-                    dealer_cards.append(card[1])
-                setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
-                if (dealer_cards_value > player_cards_value) and (dealer_cards_value <= 21):
-                    print('Dealer wins')
-                elif dealer_cards_value == player_cards_value:
-                    print('Stand')
-                elif dealer_cards_value < player_cards_value:
+            choice = True
+
+            if player_blackjack:
+                print('Blackjack!')
+                if dealer_cards_value != 10 and dealer_cards_value != 11:
+                    player_cards_value, dealer_cards_value = clearHand(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
+                    choice = False
                     print('You win')
-                else:
-                    print('The dealer got busted')
-                player_cards_value, dealer_cards_value = clearHand(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
-                choice = False
-            elif choice == '0':
-                print('See ya')
-                choice = False
-            else:
-                print('Can you choose somenthing right? Fucking dumb')
 
+            #if dealer_cards_value == 11 and not player_blackjack:
+                #insurance
+
+
+            while choice:
+                print('[1] Give me a card\n[2] Stay\n[0] Go smoking a cigarette') 
+                choice = input()
+
+                if choice == '1':
+                    if not (player_cards_value == 21):
+                        print('Dealing...')
+                        card = hitOneCard(new_deck, value_new_deck, 0)
+                        player_cards_value += checkAceValue(player_cards_value, card[0])
+                        player_cards.append(card[1])
+                        setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
+                        if player_cards_value > 21:
+                            print('Too many\n')
+                            money = addMoney(money, -bet)
+                            player_cards_value, dealer_cards_value = clearHand(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
+                            choice = False
+                    else:
+                        print('You have already 21\n')
+                elif choice == '2':
+                    print('Dealing...')
+                    while dealer_cards_value < 17:
+                        card = hitOneCard(new_deck, value_new_deck, 0)
+                        dealer_cards_value += checkAceValue(dealer_cards_value, card[0])
+                        dealer_cards.append(card[1])
+                        if len(dealer_cards) == 2:
+                            dealer_blackjack = checkBlackjack(dealer_cards_value)
+                    setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
+                    if (dealer_cards_value > player_cards_value) and (dealer_cards_value <= 21):
+                        print('Dealer wins\n')
+                        money = addMoney(money, - bet)
+                    elif dealer_cards_value == player_cards_value:
+                        if player_blackjack and not dealer_blackjack:
+                            print('You win: Blackjack beats 21\n')
+                        elif dealer_blackjack and not player_blackjack:
+                            print('Dealer wins: Blackjack beats 21\n')
+                            money = addMoney(money, - bet)
+                        else:
+                            print('Stand\n')
+                    elif dealer_cards_value < player_cards_value:
+                        print('You win\n')
+                        money = addMoney(money, bet)
+                    else:
+                        print('The dealer got busted. You win\n')
+                        money = addMoney(money, bet)
+                    player_cards_value, dealer_cards_value = clearHand(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
+                    choice = False
+                elif choice == '0':
+                    print('See ya')
+                    choice = False
+                else:
+                    print('Can you choose somenthing right? Fucking dumb\n')
+        elif bet_choice == '0':
+            print('Bye')
+            bet_choice = False
+        else:
+            print('Choose somenthing')
     
 
 def copyDeck(cards):
@@ -120,11 +166,11 @@ def firstHand(deck, deck_value, player_cards_value, player_cards, dealer_cards_v
     "Function that deal one hand"
 
     card = hitOneCard(deck, deck_value, 0)
-    player_cards_value += card[0]
+    player_cards_value += checkAceValue(player_cards_value, card[0])
     player_cards.append(card[1])
 
     card = hitOneCard(deck, deck_value, 0)
-    dealer_cards_value += card[0]
+    dealer_cards_value += checkAceValue(dealer_cards_value, card[0])
     dealer_cards.append(card[1])
 
     card = hitOneCard(deck, deck_value, 0)
@@ -161,9 +207,20 @@ def setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_car
     print('Your cards:', p_cards, '\tDealer card:', d_cards, '\n')
 
 def checkAceValue(cards_value, card_value):
-    if (cards_value > 10) and (card_value == 11):
-        card_value = 1
-        return card_value;
+    global ace
+
+    if card_value == 11:
+        ace = True
+
+    if ace:
+        if (cards_value > 10) and card_value == 11:
+            card_value = 1
+            return card_value;
+        elif (cards_value + card_value > 21) and ace:
+            ace = False
+            return card_value - 10
+        else:
+            return card_value
     else:
         return card_value;
 
@@ -179,3 +236,7 @@ def checkBlackjack(cards_value):
         return True
     else:
         return False
+
+def addMoney(money, bet):
+    money += bet
+    return money
