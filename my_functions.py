@@ -3,15 +3,15 @@ import random
 ace = False
 
 def menu():
-    single_deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'] * 4
-    complete_deck = single_deck * 6
+    # single_deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'] * 4
+    # complete_deck = single_deck * 6
 
     # single_deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A']
-    # single_deck = ['A', 'A', 5, 'A', 'A', 10, 3, 'A', 10, 'J', 'Q', 'K', 'A']
+    single_deck = ['A', 'A', 9, 5, 10, 7, 3, 'A', 10, 'J', 'Q', 'K', 'A']
 
     print('Shuffling...')
-    new_deck = shuffleDeck(complete_deck)
-    # new_deck = single_deck
+    # new_deck = shuffleDeck(complete_deck)
+    new_deck = single_deck
     value_new_deck = deckValue(new_deck)
 
     player_cards_value, dealer_cards_value = 0, 0
@@ -209,20 +209,17 @@ def setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_car
 def checkAceValue(cards_value, card_value):
     global ace
 
-    if card_value == 11:
+    if (cards_value < 10) and (card_value == 11):
         ace = True
 
-    if ace:
-        if (cards_value > 10) and card_value == 11:
-            card_value = 1
-            return card_value;
-        elif (cards_value + card_value > 21) and ace:
-            ace = False
-            return card_value - 10
-        else:
-            return card_value
-    else:
+    if (cards_value > 10) and (card_value == 11):
+        card_value = 1
         return card_value;
+    elif (cards_value + card_value > 21) and ace:
+        ace = False
+        return card_value - 10
+    else:
+        return card_value
 
 def clearHand(player_cards_value, player_cards, dealer_cards_value, dealer_cards):
     player_cards_value = 0
