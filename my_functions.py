@@ -8,7 +8,7 @@ def menu():
     complete_deck = single_deck * 6
 
     # single_deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A']
-    # single_deck = [4, 3, 'A', 2, 10, 'A', 10, 'A', 10, 'J', 'Q', 'K', 'A', 1]
+    # single_deck = [9, 'A', 10, 10, 10, 'A', 10, 8, 10, 'J', 'Q', 'K', 'A', 1]
 
     print('Shuffling...\n')
     new_deck = shuffleDeck(complete_deck)
@@ -198,10 +198,29 @@ def menu():
                             player_cards.append(card[1])
                             setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
                             if player_cards_value > 21:
-                                print('Too many. You lose your bet', bet, '$\n')
+                                if not insurance:
+                                    print('Too many. You lose your bet', bet, '$\n')
+                                else:
+                                    card = hitOneCard(new_deck, value_new_deck, 0)
+                                    value = checkAceValue(dealer_cards_value, card[0], ace_dealer)
+                                    dealer_cards_value += value[0]
+                                    ace_dealer = value[1]
+                                    dealer_cards.append(card[1])
+                                    if len(dealer_cards) == 2:
+                                        dealer_blackjack = checkBlackjack(dealer_cards_value)
+                                    setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
+                                    
+                                    if dealer_blackjack:
+                                        print('Insurance pay', insurance*2, '$\n')
+                                        money = addMoney(money, insurance*2)
+                                    else:
+                                        print('You lose your insurance', insurance, '$\n')
+                                        money = addMoney(money, - insurance)
+
+                                    print('Too many. You lose your bet', bet, '$\n')
                                 money = addMoney(money, - bet)
-                                player_cards_value, dealer_cards_value = clearHand(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
                                 choice = False
+                                player_cards_value, dealer_cards_value = clearHand(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
                         else:
                             print('You have already 21\n')
                     elif choice == '2':
@@ -247,7 +266,12 @@ def menu():
                                 money = addMoney(money, bet + (bet/2))
                         else:
                             print('The dealer got busted. You win', bet, '$\n')
-                            money = addMoney(money, bet)
+                            if not player_blackjack:
+                                print('You win', bet, '$\n')
+                                money = addMoney(money, bet)
+                            else:
+                                print('You win', bet + (bet/2), '$\n')
+                                money = addMoney(money, bet + (bet/2))
                         player_cards_value, dealer_cards_value = clearHand(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
                         choice = False
                     elif choice == '3':
@@ -262,9 +286,28 @@ def menu():
                                     ace_player = value[1]
                                     player_cards.append(card[1])
                                     if player_cards_value > 21:
-                                        setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
-                                        print('Too many. You lose your bet', bet, '$\n')
+                                        if not insurance:
+                                            setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
+                                            print('Too many. You lose your bet', bet, '$\n')
+                                        else:
+                                            card = hitOneCard(new_deck, value_new_deck, 0)
+                                            value = checkAceValue(dealer_cards_value, card[0], ace_dealer)
+                                            dealer_cards_value += value[0]
+                                            ace_dealer = value[1]
+                                            dealer_cards.append(card[1])
+                                            if len(dealer_cards) == 2:
+                                                dealer_blackjack = checkBlackjack(dealer_cards_value)
+                                            setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
+                                        
+                                            if dealer_blackjack:
+                                                print('Insurance pay', insurance*2, '$\n')
+                                                money = addMoney(money, insurance*2)
+                                            else:
+                                                print('You lose your insurance', insurance, '$\n')
+                                                money = addMoney(money, - insurance)
                                         money = addMoney(money, - bet)
+                                        print('Too many. You lose your bet', bet, '$\n')
+                                        choice = False
                                         player_cards_value, dealer_cards_value = clearHand(player_cards_value, player_cards, dealer_cards_value, dealer_cards)
                                     else:
                                         while dealer_cards_value < 17:
@@ -386,7 +429,7 @@ def copyDeck(cards):
         deck.append(cards[i])
         i += 1
 
-    return deck;
+    return deck
 
 def subCards(deck, deck_value, index):
     "Function that delete cards from the deck"
@@ -409,7 +452,7 @@ def shuffleDeck(cards):
         shuffled_deck.append( deck[random_card] )
         deck.pop(random_card)
     
-    return shuffled_deck;
+    return shuffled_deck
 
 def deckValue(cards):
     "Function that replace values instead of letters. This function creates a copy of the parameter"
@@ -423,7 +466,7 @@ def deckValue(cards):
             deck[i] = 11
         i += 1
 
-    return deck;
+    return deck
 
 def firstHand(deck, deck_value, player_cards_value, player_cards, dealer_cards_value, dealer_cards):
     "Function that deal one hand"
@@ -448,7 +491,7 @@ def firstHand(deck, deck_value, player_cards_value, player_cards, dealer_cards_v
     player_cards_value += value[0]
     player_cards.append(card[1])
 
-    return player_cards_value, dealer_cards_value, ace_player, ace_dealer;   
+    return player_cards_value, dealer_cards_value, ace_player, ace_dealer
 
 def subHands(deb):
     if deb:
@@ -470,7 +513,7 @@ def hitOneCard(deck, deck_value, index):
 
     subCards(deck, deck_value, sub)
 
-    return card_info;
+    return card_info
 
 def setOverwiew(player_cards_value, player_cards, dealer_cards_value, dealer_cards):
 
@@ -514,7 +557,7 @@ def clearHand(player_cards_value, player_cards, dealer_cards_value, dealer_cards
     dealer_cards_value = 0
     del player_cards[:]
     del dealer_cards[:]
-    return player_cards_value, dealer_cards_value;
+    return player_cards_value, dealer_cards_value
 
 def checkBlackjack(cards_value):
     if cards_value == 21:
