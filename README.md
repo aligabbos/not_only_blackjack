@@ -1,7 +1,7 @@
 # Not only blackjack
 
+This game is a simple version of European blackjack 1 vs dealer.<br>
 I have created this game basically for approching myself with the python programming language and obviusly for fun.
-Is a simple blackjack game 1 vs dealer
 
 ## Getting started
 
@@ -24,4 +24,5 @@ I have used the [formatted string literals](https://docs.python.org/3/tutorial/i
 name = 'John Doe'
 print(f'Hello {name}')
 ```
-I am using the 3.7.X version of python
+That is not supported for older versions of python.<br>
+I am using the 3.7.x version of python
